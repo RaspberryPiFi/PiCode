@@ -26,7 +26,7 @@ def enroll():
   print 'Details:'
   print 'group_id: %s' % group_id
   print 'device_id: %s' % device_id
-  #TODO: Save this is json config file under user's home dir
+  return group_id, device_id
   
 def get_group_details():
   """Sends a random number to server and if a conflict occurs, retries"""

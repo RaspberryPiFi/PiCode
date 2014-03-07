@@ -29,30 +29,17 @@ class DeviceEnroll(object):
       f = urllib2.urlopen(req)
       json_response = json.loads(f.read())
       f.close()
-      return json_response['device_id']
+      return json_response
+      
     except:
       print traceback.print_exc()
 
-def start_pyro(group_id):
-  """Sets up Pyro sharing DeviceEnroll and starting the eventloop"""
-  device_enroll=DeviceEnroll(group_id)
-  
-  #TODO: Seriously re-consider life as a programmer for using this workikaround
-  ip_address = Pyro4.socketutil.getIpAddress('localhost',True)
-  
-  daemon=Pyro4.Daemon(host=ip_address)
+def setup_pyro(group_id, daemon):
+  """Sets up Pyro, sharing DeviceEnroll, and starting the eventloop"""
+  device_enroll = DeviceEnroll(group_id)
   ns=Pyro4.locateNS()
   uri=daemon.register(device_enroll)
   ns.register("pisync.device_enroll", uri)
-  
-  print "Ready!"
-  daemon.requestLoop()
-  
-def enroll_device():
-  """runs device_enroll.enroll on Master enrolling the slave device"""
-  device_enroll=Pyro4.Proxy("PYRONAME:pisync.device_enroll")
-  print device_enroll.enroll()
-  #TODO: Save this is json config file under user's home dir
   
   
   

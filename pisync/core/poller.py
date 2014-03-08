@@ -9,7 +9,7 @@ __maintainer__ = "Tom Hanson"
 __email__ = "tom@aporcupine.com"
 
 import urllib2
-import config
+import base_config
 import json
 import traceback
 
@@ -28,7 +28,7 @@ def poll_for_updates(master_config, master_player):
   
 def make_request(group_id):
   json_string = json.dumps({'group_id': group_id})
-  url = '%s/api/group/update' % config.BASE_URL
+  url = '%s/api/group/update' % base_config.BASE_URL
   req = urllib2.Request(url, json_string, {'Content-Type': 'application/json'})
   #TODO: Add error handling for HTTP errors
   f = urllib2.urlopen(req)
@@ -37,14 +37,14 @@ def make_request(group_id):
   return response
 
 def handle_action(action, master_player, master_device_id):
-  if action['type'] == 'party_play':
+  if 'party_mode' in action:
     handle_party_action(action, master_player, master_device_id)
   else:
     if action['device_id'] == master_device_id:
       player = master_player
     else:
       player = Pyro4.Proxy('PYRONAME:pisync.slave.%s' % action['device_id'])
-    # TODO: Handle security here, this is not too safe right now
+    #TODO: Handle security here, this is not too safe right now
     if action['type'] in ['play_list','set_volume']:
       getattr(player, action['type'])(action['arg'])
     elif hasattr(player, action['type']):
@@ -54,28 +54,24 @@ def handle_action(action, master_player, master_device_id):
       
 def handle_party_action(action, master_player, master_device_id):
   """Currently only plays one track on all devices, need to sort playlists"""
-  slave_players = []
-  ip_address = Pyro4.socketutil.getIpAddress('localhost',True)
-  if not master_player.synced:
-    master_player.setup_synced_master()
-  #Checks if slave devices are setup for synced playback yet
-  for device_id in action['device_ids']:
-    if device_id != master_device_id:
-      try:
-        slave_player = Pyro4.Proxy('PYRONAME:pisync.slave.%s' % device_id)
-        slave_player.setup_synced_slave(ip_address)
-        slave_players.append(slave_player)
-      except:
-        traceback.print_exc()
-      
-  #Plays the track on each player
-  base_time = master_player.play_synced_master(action['uri'])
-  for slave_player in slave_players:
-    try:
-      slave_player.play_synced_slave(action['uri'], base_time)
-    except:
-      traceback.print_exc()
-  
+  if action['type'] == 'play_list':
+    slave_players = []
+    ip_address = Pyro4.socketutil.getIpAddress('localhost',True)
+    for device_id in action['device_ids']:
+      if device_id != master_device_id:
+        try:
+          slave_player = Pyro4.Proxy('PYRONAME:pisync.slave.%s' % device_id)
+          slave_players.append(slave_player)
+        except:
+          traceback.print_exc()
+    
+    master_player.play_list_synced(action['arg'], slave_players, ip_address)
+  elif action['type'] == 'set_volume':
+      master_player.set_volume_synced(action['arg'])
+  elif hasattr(master_player, '%s_synced' % action['type']):
+    getattr(master_player, '%s_synced' % action['type'])()
+  else:
+    print 'Invalid action provided'
   
 
   

@@ -22,7 +22,7 @@ Pyro4.config.SERVERTYPE = "multiplex"
 class Slave(object):
   def __init__(self,config):
     self.config = config
-    self.slave_player = player.Player()
+    self.slave_player = player.SlavePlayer()
     #TODO: Seriously re-consider life as a programmer for using this workaround
     ip_address = Pyro4.socketutil.getIpAddress('localhost',True)
     self.pyro_daemon = Pyro4.Daemon(host=ip_address)

@@ -21,7 +21,7 @@ gobject.threads_init()
 class Master(object):
   def __init__(self,config):
     self.config = config
-    self.master_player = player.Player()
+    self.master_player = player.MasterPlayer()
     ip_address = Pyro4.socketutil.getIpAddress('localhost',True)
     self.pyro_daemon = Pyro4.Daemon(host=ip_address)
     

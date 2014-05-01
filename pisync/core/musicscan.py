@@ -33,8 +33,8 @@ class MediaScanner(object):
     self.songs = None
     self.errors = None
     self.setup_primary_lists()
-    self._mb_albums = {'Unknown Album': 'Unknown Album'}
-    self._mb_artists = {'Unknown Artist': 'Unknown Artist'}
+    self._mb_albums = {'Unknown Album': {'name':'Unknown Album', 'artist': ''}}
+    self._mb_artists = {'Unknown Artist': {'name':'Unknown Artist'}}
     # MusicBrainz limits to 1 request per second
     self._last_request_time = 0
     

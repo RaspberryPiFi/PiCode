@@ -53,7 +53,8 @@ class NewDriveListener(object):
     except dbus.DBusException as e:
       mount_props = dev_properties.Get(UD_DEV_STRING, 'DeviceMountPaths')
       if len(mount_props) == 0:
-        logging.exception(e)
+        logging.error('Unable to mount drive, error message:')
+        logging.error(str(e))
         return
       else:
         mountpoint = mount_props[0]

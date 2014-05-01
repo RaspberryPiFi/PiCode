@@ -68,9 +68,9 @@ class MediaScanner(object):
       logging.error('Musicbrainz HTTP Error: %s' % e.code)
       return
     response_dict = json.load(response)
-    if tag_type in response_dict:
+    if tag_type in response_dict and response_dict[tag_type]:
       mb_result = response_dict[tag_type]
-    elif tag_type + 's' in response_dict:
+    elif tag_type + 's' in response_dict and response_dict[tag_type + 's']:
       mb_result = response_dict[tag_type+'s']
     else:
       return 
@@ -101,6 +101,9 @@ class MediaScanner(object):
         else:
           audio_tag = audio.tag
           audio_info = audio.info
+          if not audio.info:
+            self.errors.append(filename)
+            continue
           if audio_tag:
             if not audio_tag.artist: 
               audio_tag.artist = u'Unknown Artist'

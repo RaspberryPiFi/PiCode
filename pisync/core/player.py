@@ -328,9 +328,9 @@ class MasterPlayer(Player):
         self.player.set_state(gst.STATE_PLAYING)
     else:
       if self.synced:
-        self.skip_forward()
-      else:
         self.skip_forward_synced()
+      else:
+        self.skip_forward()
     logging.error(error[1])
     
     

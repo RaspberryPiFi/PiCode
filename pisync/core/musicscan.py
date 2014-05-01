@@ -72,7 +72,7 @@ class MediaScanner(object):
       mb_result = response_dict[tag_type]
     elif tag_type + 's' in response_dict:
       mb_result = response_dict[tag_type+'s']
-    if not mb_result:
+    else:
       return 
     return self._make_type_dict(tag_type, mb_result)
 
@@ -80,7 +80,7 @@ class MediaScanner(object):
     """Makes a dict from the result provided by musicbrainz"""
     if tag_type == 'artist':
       type_dict = {'name': mb_result[0]['name']}
-    if tag_type == 'release':
+    elif tag_type == 'release':
       mb_release = mb_result[0]
       release_artist = mb_release['artist-credit'][0]['artist']['name']
       type_dict = {'name': mb_release['title'], 'artist': release_artist}

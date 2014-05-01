@@ -23,7 +23,6 @@ class DeviceEnrollHandler(object):
     
   def enroll(self):
     """Enrolls with the cloud server and returns the new device ID"""
-    try:
       json_string = json.dumps({'group_id': self.config['group_id']})
       url = '%s/api/device_enroll' % base_config.BASE_URL
       headers = {'Content-Type': 'application/json'}
@@ -35,8 +34,6 @@ class DeviceEnrollHandler(object):
       self._update_config(slave_config['device_id'])
       logging.info('Device enrolled, ID: %s' % slave_config['device_id'])
       return slave_config
-    except Exception as e:
-      logging.exception(e)
   
   def _update_config(self, new_device_id):
     """Updates the config object and config file with the new device info"""

@@ -121,9 +121,10 @@ def main():
   if not os.path.exists(os.path.expanduser(base_config.CONFIG_DIR)):
     os.makedirs(os.path.expanduser(base_config.CONFIG_DIR))
   
-  if options.daemon and options.pidfile:
+  if options.daemon:
     context = daemon.DaemonContext()
-    context.pidfile = pidfile.PidFile(options.pidfile)
+    if options.pidfile:
+      context.pidfile = pidfile.PidFile(options.pidfile)
     with context:
       log_file_path = os.path.expanduser(base_config.LOG_FILE_PATH)
       logging.basicConfig(filename=log_file_path, level=logging.DEBUG)

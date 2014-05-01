@@ -31,12 +31,12 @@ class Loader(object):
     self.config = self.get_config(role)
     if self.config:
       self.device_type = self.config['device_type']
-      print 'Configuration Loaded! Device Type: %s' % self.device_type 
+      logging.info('Configuration Loaded! Device Type: %s' % self.device_type) 
     else:
       if role == 'auto':
-        print 'No config file found, detecting device_type'
+        logging.info('No config file found, detecting device_type')
         self.device_type = self.detect_device_type()
-        print 'Detected device type as %s' % self.device_type
+        logging.info('Detected device type as %s' % self.device_type)
       else:
         self.device_type = role
       self.config = self.create_config()
@@ -50,7 +50,7 @@ class Loader(object):
           if arg != 'auto' and arg != config['device_type']:
             return
       except IOError as e:
-        print 'Error loading configuration file!'
+        logging.error('Error loading configuration file!')
         raise e
       return config
       
@@ -65,12 +65,14 @@ class Loader(object):
     
   def create_config(self):
     """Creates a configuration file"""
-    print 'Enrolling device!'
+    logging.info('Enrolling device!')
     if self.device_type == 'master':
+      logging.info('Device enrolling as a Master Device')
       from pisync.core import groupenroll
       config = groupenroll.GroupEnrollHandler().enroll()
       config['slave_device_ids'] = []
     elif self.device_type == 'slave':
+      logging.info('Device enrolling as a Slave Device')
       device_enroll = Pyro4.Proxy('PYRONAME:pisync.device_enroll')
       config = device_enroll.enroll()
     else:

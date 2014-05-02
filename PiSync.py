@@ -49,9 +49,10 @@ class Loader(object):
           config = json.loads(f.read())
           if arg != 'auto' and arg != config['device_type']:
             return
-      except IOError as e:
+      except Exception as e:
         logging.error('Error loading configuration file!')
-        raise e
+        logging.error('To generate a new file please delete the existing file!')
+        sys.exit()
       return config
       
   def detect_device_type(self):
@@ -137,6 +138,8 @@ def main():
       try:
         loader = Loader(device_type)
         loader.start()
+      except (SystemExit, KeyboardInterrupt):
+        logging.info('Shutting down.')
       except Exception as e:
         logging.exception(e)
   else:

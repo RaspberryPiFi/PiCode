@@ -75,7 +75,11 @@ class Loader(object):
     elif self.device_type == 'slave':
       logging.info('Device enrolling as a Slave Device')
       device_enroll = Pyro4.Proxy('PYRONAME:pisync.device_enroll')
-      config = device_enroll.enroll()
+      try:
+        config = device_enroll.enroll()
+      except Pyro4.errors.PyroError:
+        logging.error('Unable to find Master Device, cannot start as a slave.')
+        sys.exit()
     else:
       raise ValueError('device_type must be either master or slave')
     config['device_type'] = self.device_type

@@ -10,6 +10,7 @@ __email__ = "tom@aporcupine.com"
 
 import logging
 import select
+import sys
 
 # pylint: disable=F0401
 import gobject
@@ -44,7 +45,11 @@ class Slave(object):
   
   def setup_pyro(self):
     """Sets up Pyro, sharing slave_player"""
-    ns = Pyro4.locateNS()
+    try:
+      ns = Pyro4.locateNS()
+    except Pyro4.errors.PyroError:
+      logging.error('Unable to find Master Device, cannot start as a slave.')
+      sys.exit()
     uri = self.pyro_daemon.register(self.slave_player)
     #TODO: Handle NS not found error
     ns.register("pisync.slave.%s" % self.config['device_id'], uri)

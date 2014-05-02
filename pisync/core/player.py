@@ -79,11 +79,12 @@ class Player(object):
   
   def skip_forward(self):
     """Stops the current audio and plays the next in the playlist"""
-    self.player.set_state(gst.STATE_NULL)
-    if self.playlist_index + 1 < self.playlist_length:
-      self.curr_title = ''
-      self.curr_artist = ''
-      self.playlist_index += 1
+    if self.player.get_state()[1] == gst.STATE_PLAYING:
+      self.player.set_state(gst.STATE_NULL)
+      if self.playlist_index + 1 < self.playlist_length:
+        self.curr_title = ''
+        self.curr_artist = ''
+        self.playlist_index += 1
       self.player.set_property('uri', self.playlist[self.playlist_index])
       self.player.set_state(gst.STATE_PLAYING)
   
@@ -260,13 +261,14 @@ class MasterPlayer(Player):
   def skip_forward_synced(self):
     """Skips forward then calls _play_slaves to play new track on slaves"""
     if self.synced:
-      self.curr_title = ''
-      self.curr_artist = ''
-      if self.playlist_index + 1 != self.playlist_length:
-        self.playlist_index += 1
-        self._play_synced()
-      else:
-        self.stop_synced()
+      if self.player.get_state()[1] == gst.STATE_PLAYING:
+        if self.playlist_index + 1 != self.playlist_length:
+          self.curr_title = ''
+          self.curr_artist = ''
+          self.playlist_index += 1
+          self._play_synced()
+        else:
+          self.stop_synced()
   
   def skip_backward_synced(self):
     """Skips backward then calls _play_slaves to play new track on slaves"""
@@ -275,7 +277,7 @@ class MasterPlayer(Player):
       self.curr_artist = ''
       if not self.playlist_index - 1 < 0:
         self.playlist_index -= 1
-        self._play_synced()
+      self._play_synced()
       else:
         self.stop_synced()
       

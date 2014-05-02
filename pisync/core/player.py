@@ -79,22 +79,22 @@ class Player(object):
   
   def skip_forward(self):
     """Stops the current audio and plays the next in the playlist"""
-    if self.player.get_state()[1] == gst.STATE_PLAYING:
-      self.player.set_state(gst.STATE_NULL)
-      if self.playlist_index + 1 < self.playlist_length:
-        self.curr_title = ''
-        self.curr_artist = ''
-        self.playlist_index += 1
+    self.player.set_state(gst.STATE_NULL)
+    if self.playlist_index + 1 < self.playlist_length:
+      self.curr_title = ''
+      self.curr_artist = ''
+      self.playlist_index += 1
       self.player.set_property('uri', self.playlist[self.playlist_index])
       self.player.set_state(gst.STATE_PLAYING)
   
   def skip_backward(self):
     """Stops the current audio and plays the previous in the playlist"""
-    self.player.set_state(gst.STATE_NULL)
-    if not self.playlist_index - 1 < 0:
-      self.curr_title = ''
-      self.curr_artist = ''
-      self.playlist_index -= 1
+    if self.player.get_state()[1] == gst.STATE_PLAYING:
+      self.player.set_state(gst.STATE_NULL)
+      if not self.playlist_index - 1 < 0:
+        self.curr_title = ''
+        self.curr_artist = ''
+        self.playlist_index -= 1
       self.player.set_property('uri', self.playlist[self.playlist_index])
       self.player.set_state(gst.STATE_PLAYING)
   
@@ -278,8 +278,6 @@ class MasterPlayer(Player):
       if not self.playlist_index - 1 < 0:
         self.playlist_index -= 1
       self._play_synced()
-      else:
-        self.stop_synced()
       
   def stop_synced(self):
     """Stops all devices playing"""

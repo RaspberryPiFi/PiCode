@@ -47,7 +47,7 @@ class MediaScanner(object):
     self.songs = []
     self.errors = []
       
-  def search_mb(self, tag_type, name):
+  def search_mb(self, tag_type, name, artist_name=None):
     """Searches the musicbrainz database for the tag_type with name"""
     while time.time() - self._last_request_time < 1:
       time.sleep(0.2)
@@ -58,7 +58,13 @@ class MediaScanner(object):
     except Exception:
       name = urllib2.quote(name.encode('utf8'))
     url_params = {'url':self.mb_url, 'type':tag_type, 'name':name}
-    url = '%(url)s/%(type)s?query=%(type)s:"%(name)s"&fmt=json' % url_params
+    if artist_name:
+      artist_name = urllib2.quote(artist_name)
+      url_params['artist'] = artist_name
+      url = ('%(url)s/%(type)s?query=%(type)s:%(name)s%%20AND%%20'
+             'artistname:"%(artist)s"&fmt=json') % url_params
+    else:
+      url = '%(url)s/%(type)s?query=%(type)s:"%(name)s"&fmt=json' % url_params
     request = urllib2.Request(url)
     request.add_header('User-Agent', self.mb_user_agent)
     try:
@@ -125,7 +131,8 @@ class MediaScanner(object):
             try:
               album = self._mb_albums[audio_tag.album]
             except KeyError:
-              mb_result = self.search_mb('release', audio_tag.album)
+              artist_name = artist['name']
+              mb_result = self.search_mb('release',audio_tag.album,artist_name)
               if mb_result:
                 album = mb_result
               else:

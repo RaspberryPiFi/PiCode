@@ -126,7 +126,11 @@ def main():
   if options.daemon:
     context = daemon.DaemonContext()
     if options.pidfile:
-      context.pidfile = pidfile.PidFile(options.pidfile)
+      if os.access(options.pidfile, os.W_OK):
+        context.pidfile = pidfile.PidFile(options.pidfile)
+      else:
+        logging.error('Unable to access pidfile specified, check permissions.')
+        logging.error('Starting with no pidfile.')
     with context:
       log_file_path = os.path.expanduser(base_config.LOG_FILE_PATH)
       logging.basicConfig(filename=log_file_path, level=logging.DEBUG)

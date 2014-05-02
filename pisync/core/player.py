@@ -291,7 +291,7 @@ class MasterPlayer(Player):
           slave_player.stop()
         except PyroError:
           logging.error('Could not contact a device')
-        
+      self.reset_player()
   
   def set_volume_synced(self, new_volume):
     """Sets volume on devices playing"""

@@ -34,7 +34,7 @@ class Poller(object):
   def poll_for_updates(self):
     """Polls the server and calls appropriate action with response""" 
     response = self.make_request()
-    if 'actions' in response:
+    if response and 'actions' in response:
       for action in response['actions']:
         logging.info('Handling Action')
         if 'party_mode' in action:
@@ -52,10 +52,14 @@ class Poller(object):
     headers = {'Content-Type': 'application/json'}
     req = urllib2.Request(url, json_string, headers)
     #TODO: Add error handling for HTTP errors
-    f = urllib2.urlopen(req)
-    response = json.loads(f.read())
-    f.close()
-    return response
+    try:
+      f = urllib2.urlopen(req)
+    except Exception as e:
+      logging.error('Error encountered when attempting to poll: %s' % str(e))
+    else:
+      response = json.loads(f.read())
+      f.close()
+      return response
     
   def get_device_statuses(self):
     """Returns the status of all devices"""

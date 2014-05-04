@@ -261,23 +261,23 @@ class MasterPlayer(Player):
   def skip_forward_synced(self):
     """Skips forward then calls _play_slaves to play new track on slaves"""
     if self.synced:
-      if self.player.get_state()[1] == gst.STATE_PLAYING:
-        if self.playlist_index + 1 != self.playlist_length:
-          self.curr_title = ''
-          self.curr_artist = ''
-          self.playlist_index += 1
-          self._play_synced()
-        else:
-          self.stop_synced()
+      if self.playlist_index + 1 != self.playlist_length:
+        self.curr_title = ''
+        self.curr_artist = ''
+        self.playlist_index += 1
+        self._play_synced()
+      else:
+        self.stop_synced()
   
   def skip_backward_synced(self):
     """Skips backward then calls _play_slaves to play new track on slaves"""
     if self.synced:
-      self.curr_title = ''
-      self.curr_artist = ''
-      if not self.playlist_index - 1 < 0:
-        self.playlist_index -= 1
-      self._play_synced()
+      if self.player.get_state()[1] == gst.STATE_PLAYING:
+        self.curr_title = ''
+        self.curr_artist = ''
+        if not self.playlist_index - 1 < 0:
+          self.playlist_index -= 1
+        self._play_synced()
       
   def stop_synced(self):
     """Stops all devices playing"""
